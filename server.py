@@ -30,7 +30,7 @@ def fetch_api():
 
         return jsonify(formatted_data), 200
 
-    except requests.exceptions.RequestException as e:
+    except requests.exceptions.RequestException as e:   
         # Handle network errors or bad status codes
         error_message = f"Error fetching data: {str(e)}"
         if hasattr(e, 'response') and e.response is not None:
@@ -39,6 +39,12 @@ def fetch_api():
     except (KeyError, ValueError) as e:
         # Handle JSON parsing or missing keys
         return jsonify({"error": f"Error parsing data: {str(e)}"}), 500
+
+@app.route('/favicon.ico')
+def favicon():
+    return '', 204  # Return an empty response with 204 No Content
+
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
