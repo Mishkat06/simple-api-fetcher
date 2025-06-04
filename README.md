@@ -1,9 +1,12 @@
 # Simple API Fetcher
 
 ## Project Overview
-This project, `simple-api-fetcher`, is a Python-based application designed to interact with the Pokémon API (`https://pokeapi.co/api/v2/pokemon/`). The program takes a Pokémon name as user input, fetches data from the API, and displays formatted information about the Pokémon, including its name, ID, height, weight, types, and abilities. It includes error handling for invalid inputs (e.g., unknown Pokémon names or network issues) and is structured to be easily extendable for additional features.
+This project, `simple-api-fetcher`, is a Python-based application initially designed to interact with the Pokémon API (`https://pokeapi.co/api/v2/pokemon/`). It has been extended to include a backend API layer that allows fetching data from any public API URL via a `/fetch-api` route. The program now supports:
 
-The project was developed as part of an internship assignment to demonstrate skills in API integration, Python programming, Git version control, and documentation. The repository includes the main script (`api_fetcher.py`), a dependency list (`requirements.txt`), and this README for setup and usage instructions.
+- **Day 2**: A command-line script (`api_fetcher.py`) that takes a Pokémon name as user input, fetches data from the Pokémon API, and displays formatted information (name, ID, height, weight, types, abilities).
+- **Day 3**: A Flask-based backend server (`server.py`) with a `/fetch-api` route that accepts a public API URL as input and returns parsed and formatted JSON or an error message.
+
+The project demonstrates skills in API integration, Python programming, Git version control, and backend development. The repository includes the main scripts (`api_fetcher.py`, `server.py`), a dependency list (`requirements.txt`), and this README for setup and usage instructions.
 
 ## Setup Instructions
 To run this project on your local machine, follow these steps:
@@ -13,9 +16,9 @@ To run this project on your local machine, follow these steps:
      ```bash
      python --version
      ```
-   - Install the required `requests` library, which is used to make API calls:
+   - Install the required libraries (`requests` for API calls, `flask` for the backend server):
      ```bash
-     pip install requests
+     pip install requests flask
      ```
 
 2. **Clone the Repository**:
@@ -31,11 +34,13 @@ To run this project on your local machine, follow these steps:
      ```bash
      pip install -r requirements.txt
      ```
-   - This ensures the `requests` library is available.
+   - This ensures the `requests` and `flask` libraries are available.
 
 ## Running the Program
+
+### Option 1: Command-Line Script (Day 2)
 1. **Execute the Script**:
-   - In your terminal, navigate to the project folder (if not already there):
+   - In your terminal, navigate to the project folder:
      ```bash
      cd path/to/simple-api-fetcher
      ```
@@ -66,25 +71,70 @@ To run this project on your local machine, follow these steps:
      Error: Received status code 404
      ```
 
+### Option 2: Backend Server 
+1. **Start the Server**:
+   - In your terminal, navigate to the project folder:
+     ```bash
+     cd path/to/simple-api-fetcher
+     ```
+   - Run the Flask server:
+     ```bash
+     python server.py
+     ```
+   - The server will start on `http://localhost:5000`.
+
+2. **Test the `/fetch-api` Route**:
+   - Open a browser or use a tool like `curl` or Postman to make a GET request to:
+     ```
+     http://localhost:5000/fetch-api?url=https://pokeapi.co/api/v2/pokemon/pikachu
+     ```
+   - **Example Response (Success)**:
+     ```json
+     {
+       "name": "pikachu",
+       "id": 25,
+       "height": 4,
+       "weight": 60,
+       "types": ["electric"],
+       "abilities": ["static", "lightning-rod"]
+     }
+     ```
+   - **Example Response (Error)**:
+     - For an invalid URL (e.g., `http://localhost:5000/fetch-api?url=https://pokeapi.co/api/v2/pokemon/xyz`):
+       ```json
+       {
+         "error": "Error: Received status code 404"
+       }
+       ```
+     - For a missing URL:
+       ```json
+       {
+         "error": "No API URL provided"
+       }
+       ```
+
 ## Project Structure
-- `api_fetcher.py`: The main Python script that handles API requests, data parsing, and output formatting.
-- `requirements.txt`: Lists the required Python library (`requests`).
+- `api_fetcher.py`: The original command-line script that fetches and formats Pokémon API data (Day 2).
+- `server.py`: The Flask server with the `/fetch-api` route to fetch data from any public API URL (Day 3).
+- `requirements.txt`: Lists the required Python libraries (`requests`, `flask`).
 - `README.md`: This file, providing project details and instructions.
 
 ## Error Handling
-The program includes error handling for:
-- Network issues (e.g., no internet connection).
-- Invalid Pokémon names (e.g., returns a 404 error with an appropriate message).
-- General exceptions during API requests.
+The `/fetch-api` route includes error handling for:
+- Missing URL parameter (`400 Bad Request`).
+- Network issues (e.g., no internet connection, `500 Internal Server Error`).
+- Invalid API responses (e.g., `404 Not Found`, returned as `500` with error message).
+- JSON parsing or missing keys (`500 Internal Server Error`).
 
 ## Future Improvements
-- Add support for fetching multiple Pokémon in a single run.
-- Include additional Pokémon details, such as moves or evolution chains.
-- Implement a graphical user interface (GUI) for better user interaction.
+- Generalize the response formatting to handle different API structures dynamically.
+- Add support for fetching multiple URLs in a single request.
+- Include additional API details based on the provided URL.
 
 ## Notes
-- The program was tested with various Pokémon names (e.g., Pikachu, Charizard, Bulbasaur) and handles errors gracefully.
-- Ensure you have an active internet connection, as the program relies on the Pokémon API.
+- The program was tested with various Pokémon API URLs (e.g., `https://pokeapi.co/api/v2/pokemon/pikachu`, `https://pokeapi.co/api/v2/pokemon/charizard`) and handles errors gracefully.
+- Ensure you have an active internet connection, as the program relies on external APIs.
+- Stop the Flask server (Ctrl+C in the terminal) when done testing.
 
-
+If you encounter any issues or have questions, feel free to reach out!
 
