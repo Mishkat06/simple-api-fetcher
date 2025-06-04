@@ -1,0 +1,119 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple API Fetcher</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .input-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 16px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #results {
+            margin-top: 20px;
+        }
+        .result {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Simple API Fetcher</h1>
+        <div class="input-section">
+            <input type="text" id="apiUrl" placeholder="Enter API URL (e.g., https://pokeapi.co/api/v2/pokemon/pikachu)">
+            <button onclick="fetchData()">Fetch Data</button>
+        </div>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        async function fetchData() {
+            const urlInput = document.getElementById('apiUrl').value.trim();
+            const resultsDiv = document.getElementById('results');
+
+            if (!urlInput) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'result error';
+                errorDiv.textContent = 'Please enter an API URL.';
+                resultsDiv.prepend(errorDiv);
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:5000/fetch-api?url=${encodeURIComponent(urlInput)}`);
+                const data = await response.json();
+
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'result';
+
+                if (data.error) {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `Error: ${data.error}`;
+                } else {
+                    resultDiv.innerHTML = `
+                        <strong>Name:</strong> ${data.name}<br>
+                        <strong>ID:</strong> ${data.id}<br>
+                        <strong>Height:</strong> ${data.height}<br>
+                        <strong>Weight:</strong> ${data.weight}<br>
+                        <strong>Types:</strong> ${data.types.join(', ')}<br>
+                        <strong>Abilities:</strong> ${data.abilities.join(', ')}
+                    `;
+                }
+
+                resultsDiv.prepend(resultDiv);
+            } catch (error) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'result error';
+                errorDiv.textContent = `Error: ${error.message}`;
+                resultsDiv.prepend(errorDiv);
+            }
+        }
+    </script>
+</body>
+</html>
