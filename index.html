@@ -4,91 +4,103 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple API Fetcher</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f9;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #d3d3d3 0%, #a9a9a9 50%, #dcdcdc 100%); /* Ash-like gradient */
+            background-size: cover;
+            background-attachment: fixed;
+            overflow-y: auto; /* Allow scrolling if content overflows */
         }
         .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.95); /* Slight transparency for elegance */
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 1s ease-in;
         }
-        h1 {
-            text-align: center;
-            color: #333;
+        .header {
+            margin-bottom: 30px;
         }
-        .input-section {
-            display: flex;
-            gap: 10px;
+        .input-group {
             margin-bottom: 20px;
         }
-        input[type="text"] {
-            flex: 1;
-            padding: 8px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button {
-            padding: 8px 16px;
-            font-size: 16px;
+        .btn-custom {
             background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
+            border-color: #007bff;
         }
-        button:hover {
+        .btn-custom:hover {
             background-color: #0056b3;
+            border-color: #0056b3;
         }
-        #results, #history {
-            margin-top: 20px;
+        #results .card, #history .card {
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
         }
-        .result, .history-entry {
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #f9f9f9;
+        #results .card:hover, #history .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
         .error {
-            color: red;
+            color: #dc3545;
         }
         .history-section {
-            margin-top: 20px;
+            margin-top: 30px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px;
+                padding: 15px;
+            }
+            body {
+                align-items: flex-start; /* Adjust for smaller screens */
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Simple API Fetcher</h1>
-        <div class="input-section">
-            <input type="text" id="apiUrl" placeholder="Enter API URL (e.g., https://pokeapi.co/api/v2/pokemon/pikachu)">
-            <button onclick="fetchData()">Fetch Data</button>
+    <div class="container animate__animated animate__fadeIn">
+        <div class="header">
+            <h1 class="text-center text-primary">Simple API Fetcher</h1>
+            <p class="text-center text-muted">Fetch and explore API data with style!</p>
+        </div>
+        <div class="input-group">
+            <input type="text" id="apiUrl" class="form-control" placeholder="Enter API URL (e.g., https://pokeapi.co/api/v2/pokemon/pikachu)">
+            <button class="btn btn-custom animate__animated animate__pulse" onclick="fetchData()">Fetch Data</button>
         </div>
         <div id="results"></div>
 
         <div class="history-section">
-            <button onclick="viewHistory()">View Fetch History</button>
-            <div id="history"></div>
+            <button class="btn btn-outline-primary w-100 animate__animated animate__bounceIn" onclick="viewHistory()">View Fetch History</button>
+            <div id="history" class="mt-3"></div>
         </div>
     </div>
 
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         async function fetchData() {
             const urlInput = document.getElementById('apiUrl').value.trim();
             const resultsDiv = document.getElementById('results');
 
             if (!urlInput) {
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'result error';
-                errorDiv.textContent = 'Please enter an API URL.';
-                resultsDiv.prepend(errorDiv);
+                const errorCard = document.createElement('div');
+                errorCard.className = 'card error animate__animated animate__shakeX';
+                errorCard.textContent = 'Please enter an API URL.';
+                resultsDiv.prepend(errorCard);
                 return;
             }
 
@@ -96,29 +108,32 @@
                 const response = await fetch(`http://localhost:5000/fetch-api?url=${encodeURIComponent(urlInput)}`);
                 const data = await response.json();
 
-                const resultDiv = document.createElement('div');
-                resultDiv.className = 'result';
+                const resultCard = document.createElement('div');
+                resultCard.className = 'card animate__animated animate__fadeInUp';
 
                 if (data.error) {
-                    resultDiv.className = 'result error';
-                    resultDiv.textContent = `Error: ${data.error}`;
+                    resultCard.className = 'card error animate__animated animate__fadeInUp';
+                    resultCard.textContent = `Error: ${data.error}`;
                 } else {
-                    resultDiv.innerHTML = `
-                        <strong>Name:</strong> ${data.name}<br>
-                        <strong>ID:</strong> ${data.id}<br>
-                        <strong>Height:</strong> ${data.height}<br>
-                        <strong>Weight:</strong> ${data.weight}<br>
-                        <strong>Types:</strong> ${data.types.join(', ')}<br>
-                        <strong>Abilities:</strong> ${data.abilities.join(', ')}
+                    resultCard.innerHTML = `
+                        <div class="card-body">
+                            <h5 class="card-title">Result</h5>
+                            <p class="card-text"><strong>Name:</strong> ${data.name}</p>
+                            <p class="card-text"><strong>ID:</strong> ${data.id}</p>
+                            <p class="card-text"><strong>Height:</strong> ${data.height}</p>
+                            <p class="card-text"><strong>Weight:</strong> ${data.weight}</p>
+                            <p class="card-text"><strong>Types:</strong> ${data.types.join(', ')}</p>
+                            <p class="card-text"><strong>Abilities:</strong> ${data.abilities.join(', ')}</p>
+                        </div>
                     `;
                 }
 
-                resultsDiv.prepend(resultDiv);
+                resultsDiv.prepend(resultCard);
             } catch (error) {
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'result error';
-                errorDiv.textContent = `Error: ${error.message}`;
-                resultsDiv.prepend(errorDiv);
+                const errorCard = document.createElement('div');
+                errorCard.className = 'card error animate__animated animate__shakeX';
+                errorCard.textContent = `Error: ${error.message}`;
+                resultsDiv.prepend(errorCard);
             }
         }
 
@@ -131,31 +146,34 @@
                 const history = await response.json();
 
                 if (history.length === 0) {
-                    const entryDiv = document.createElement('div');
-                    entryDiv.className = 'history-entry';
-                    entryDiv.textContent = 'No fetch history available.';
-                    historyDiv.appendChild(entryDiv);
+                    const entryCard = document.createElement('div');
+                    entryCard.className = 'card history-entry animate__animated animate__fadeIn';
+                    entryCard.textContent = 'No fetch history available.';
+                    historyDiv.appendChild(entryCard);
                     return;
                 }
 
                 history.forEach(entry => {
-                    const entryDiv = document.createElement('div');
-                    entryDiv.className = 'history-entry';
-                    entryDiv.innerHTML = `
-                        <strong>URL:</strong> ${entry.url}<br>
-                        <strong>Timestamp:</strong> ${entry.timestamp}<br>
-                        <strong>Status:</strong> ${entry.status}
+                    const entryCard = document.createElement('div');
+                    entryCard.className = 'card history-entry animate__animated animate__fadeIn';
+                    entryCard.innerHTML = `
+                        <div class="card-body">
+                            <h5 class="card-title">Fetch Record</h5>
+                            <p class="card-text"><strong>URL:</strong> ${entry.url}</p>
+                            <p class="card-text"><strong>Timestamp:</strong> ${entry.timestamp}</p>
+                            <p class="card-text"><strong>Status:</strong> ${entry.status}</p>
+                        </div>
                     `;
                     if (entry.status !== 'success') {
-                        entryDiv.className = 'history-entry error';
+                        entryCard.classList.add('error');
                     }
-                    historyDiv.appendChild(entryDiv);
+                    historyDiv.appendChild(entryCard);
                 });
             } catch (error) {
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'history-entry error';
-                errorDiv.textContent = `Error fetching history: ${error.message}`;
-                historyDiv.appendChild(errorDiv);
+                const errorCard = document.createElement('div');
+                errorCard.className = 'card history-entry error animate__animated animate__shakeX';
+                errorCard.textContent = `Error fetching history: ${error.message}`;
+                historyDiv.appendChild(errorCard);
             }
         }
     </script>
