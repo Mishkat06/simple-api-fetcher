@@ -1,0 +1,17 @@
+[
+    {
+        "url": "sdcfS",
+        "timestamp": "2025-06-05 10:46:48",
+        "status": "Error fetching data: Invalid URL 'sdcfS': No scheme supplied. Perhaps you meant https://sdcfS?"
+    },
+    {
+        "url": "sdcfSFsFe",
+        "timestamp": "2025-06-05 10:46:50",
+        "status": "Error fetching data: Invalid URL 'sdcfSFsFe': No scheme supplied. Perhaps you meant https://sdcfSFsFe?"
+    },
+    {
+        "url": "https://pokeapi.co/api/v2/pokemon/pikachu",
+        "timestamp": "2025-06-05 10:47:12",
+        "status": "success"
+    }
+]

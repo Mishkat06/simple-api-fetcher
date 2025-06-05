@@ -42,11 +42,11 @@
             background-color: #0056b3;
             border-color: #0056b3;
         }
-        #results .card, #history .card {
+        #results .card {
             margin-bottom: 15px;
             transition: all 0.3s ease;
         }
-        #results .card:hover, #history .card:hover {
+        #results .card:hover {
             transform: translateY(-5px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
@@ -55,6 +55,13 @@
         }
         .history-section {
             margin-top: 30px;
+        }
+        #historyModal .modal-body {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        #historyModal .card {
+            margin-bottom: 10px;
         }
         @keyframes fadeIn {
             from { opacity: 0; }
@@ -84,8 +91,25 @@
         <div id="results"></div>
 
         <div class="history-section">
-            <button class="btn btn-outline-primary w-100 animate__animated animate__bounceIn" onclick="viewHistory()">View Fetch History</button>
-            <div id="history" class="mt-3"></div>
+            <button class="btn btn-outline-primary w-100 animate__animated animate__bounceIn" data-bs-toggle="modal" data-bs-target="#historyModal" onclick="viewHistory()">View Fetch History</button>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg animate__animated animate__fadeInDown">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="historyModalLabel">Fetch History</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="historyContent">
+                    <!-- History entries will be populated here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -138,18 +162,25 @@
         }
 
         async function viewHistory() {
-            const historyDiv = document.getElementById('history');
+            const historyDiv = document.getElementById('historyContent');
             historyDiv.innerHTML = ''; // Clear previous history
+            console.log('Fetching history...');
 
             try {
                 const response = await fetch('http://localhost:5000/fetch-history');
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const history = await response.json();
+                console.log('History data:', history);
 
                 if (history.length === 0) {
                     const entryCard = document.createElement('div');
                     entryCard.className = 'card history-entry animate__animated animate__fadeIn';
                     entryCard.textContent = 'No fetch history available.';
                     historyDiv.appendChild(entryCard);
+                    console.log('No history available.');
                     return;
                 }
 
@@ -169,11 +200,13 @@
                     }
                     historyDiv.appendChild(entryCard);
                 });
+                console.log('History entries added to modal.');
             } catch (error) {
                 const errorCard = document.createElement('div');
                 errorCard.className = 'card history-entry error animate__animated animate__shakeX';
                 errorCard.textContent = `Error fetching history: ${error.message}`;
                 historyDiv.appendChild(errorCard);
+                console.error('Error in viewHistory:', error);
             }
         }
     </script>
