@@ -1,22 +1,31 @@
 import requests
 from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS
 import json
 import os
 from datetime import datetime
 
 app = Flask(__name__)
+CORS(app)
 
-# File to store fetch history
 HISTORY_FILE = "fetch_history.json"
 
-# Helper function to load history from file
+# Load and reset history only once when the app starts
+history = []
+if os.path.exists(HISTORY_FILE):
+    with open(HISTORY_FILE, 'w') as f:
+        json.dump(history, f, indent=4)
+else:
+    with open(HISTORY_FILE, 'w') as f:
+        json.dump(history, f, indent=4)
+
 def load_history():
+    global history
     if os.path.exists(HISTORY_FILE):
         with open(HISTORY_FILE, 'r') as f:
-            return json.load(f)
-    return []
+            history = json.load(f)
+    return history
 
-# Helper function to save history to file
 def save_history(history):
     with open(HISTORY_FILE, 'w') as f:
         json.dump(history, f, indent=4)
@@ -31,25 +40,17 @@ def fetch_api():
     if not api_url:
         return jsonify({"error": "No API URL provided"}), 400
 
-    # Load existing history
     history = load_history()
-
-    # Prepare log entry
     log_entry = {
         "url": api_url,
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "status": "success"  # Default status
+        "status": "success"
     }
 
     try:
-        # Fetch data from the provided URL
         response = requests.get(api_url)
         response.raise_for_status()
-
-        # Parse the JSON data
         data = response.json()
-
-        # Format the data (specific to Pokémon API for now)
         formatted_data = {
             "name": data["name"],
             "id": data["id"],
@@ -58,13 +59,9 @@ def fetch_api():
             "types": [t["type"]["name"] for t in data["types"]],
             "abilities": [a["ability"]["name"] for a in data["abilities"]]
         }
-
-        # Log the successful fetch
         history.append(log_entry)
         save_history(history)
-
         return jsonify(formatted_data), 200
-
     except requests.exceptions.RequestException as e:
         error_message = f"Error fetching data: {str(e)}"
         if hasattr(e, 'response') and e.response is not None:
