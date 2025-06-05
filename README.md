@@ -1,13 +1,14 @@
 # Simple API Fetcher
 
 ## Project Overview
-This project, `simple-api-fetcher`, is a Python-based application initially designed to interact with the Pokémon API (`https://pokeapi.co/api/v2/pokemon/`). It has been extended to include a backend API layer and a frontend UI for fetching and displaying API data. The program now supports:
+This project, `simple-api-fetcher`, is a Python-based application initially designed to interact with the Pokémon API (`https://pokeapi.co/api/v2/pokemon/`). It has been extended to include a backend API layer, a frontend UI, and persistence for logging API requests. The program now supports:
 
 - **Day 2**: A command-line script (`api_fetcher.py`) that takes a Pokémon name as user input, fetches data from the Pokémon API, and displays formatted information (name, ID, height, weight, types, abilities).
 - **Day 3**: A Flask-based server (`server.py`) with a `/fetch-api` route that accepts a public API URL as input and returns parsed and formatted JSON or an error message.
 - **Day 4**: A frontend UI (`index.html`) with an input field to enter an API URL and a button to fetch data via the `/fetch-api` route, with responses displayed on the page. Supports multiple URLs sequentially.
+- **Day 5**: Persistence for logging API fetches (URL, timestamp, status) in a file (`fetch_history.json`), a `/fetch-history` route to retrieve past requests, and a frontend update to display the fetch history.
 
-The project demonstrates skills in API integration, Python programming, Git version control, backend development, and frontend development. The repository includes the main scripts (`api_fetcher.py`, `server.py`, `index.html`), a dependency list (`requirements.txt`), and this README for setup and usage instructions.
+The project demonstrates skills in API integration, Python programming, Git version control, backend development, frontend development, and persistence. The repository includes the main scripts (`api_fetcher.py`, `server.py`, `index.html`), a dependency list (`requirements.txt`), a log file (`fetch_history.json`), and this README for setup and usage instructions.
 
 ## Setup Instructions
 To run this project on your local machine, follow these steps:
@@ -39,7 +40,7 @@ To run this project on your local machine, follow these steps:
 
 ## Running the Program
 
-### Option 1: Command-Line Script
+### Option 1: Command-Line Script (Day 2)
 1. **Execute the Script**:
    - In your terminal, navigate to the project folder:
      ```bash
@@ -72,7 +73,7 @@ To run this project on your local machine, follow these steps:
      Error: Received status code 404
      ```
 
-### Option 2: Backend Server and Frontend UI 
+### Option 2: Backend Server and Frontend UI (Day 3, Day 4, and Day 5)
 1. **Start the Server**:
    - In your terminal, navigate to the project folder:
      ```bash
@@ -89,55 +90,84 @@ To run this project on your local machine, follow these steps:
      ```
      http://localhost:5000
      ```
-   - You’ll see a simple UI with an input field and a "Fetch Data" button.
+   - You’ll see a simple UI with an input field, a "Fetch Data" button, and a "View Fetch History" button.
 
 3. **Fetch Data**:
    - Enter an API URL (e.g., `https://pokeapi.co/api/v2/pokemon/pikachu`) in the input field.
    - Click "Fetch Data".
    - The response will be displayed below the input field, showing formatted Pokémon data or an error message.
-   - You can enter another URL (e.g., `https://pokeapi.co/api/v2/pokemon/charizard`) and fetch again; results will be appended above the previous ones.
+   - Each fetch is logged with its URL, timestamp, and status in `fetch_history.json`.
 
-4. **Optional: Test the `/fetch-api` Route Directly**:
-   - To test the backend, make a GET request to:
+4. **View Fetch History**:
+   - Click the "View Fetch History" button.
+   - The history of past fetches (URL, timestamp, status) will be displayed below the button.
+
+5. **Optional: Test the `/fetch-api` and `/fetch-history` Routes Directly**:
+   - **Fetch API**:
      ```
      http://localhost:5000/fetch-api?url=https://pokeapi.co/api/v2/pokemon/pikachu
      ```
-   - **Example Response (Success)**:
-     ```json
-     {
-       "name": "pikachu",
-       "id": 25,
-       "height": 4,
-       "weight": 60,
-       "types": ["electric"],
-       "abilities": ["static", "lightning-rod"]
-     }
+     - **Example Response (Success)**:
+       ```json
+       {
+         "name": "pikachu",
+         "id": 25,
+         "height": 4,
+         "weight": 60,
+         "types": ["electric"],
+         "abilities": ["static", "lightning-rod"]
+       }
+       ```
+     - **Example Response (Error)**:
+       ```json
+       {
+         "error": "Error: Received status code 404"
+       }
+       ```
+   - **Fetch History**:
      ```
-   - **Example Response (Error)**:
-     ```json
-     {
-       "error": "Error: Received status code 404"
-     }
+     http://localhost:5000/fetch-history
      ```
+     - **Example Response**:
+       ```json
+       [
+         {
+           "url": "https://pokeapi.co/api/v2/pokemon/pikachu",
+           "timestamp": "2025-06-04 13:15:23",
+           "status": "success"
+         },
+         {
+           "url": "https://pokeapi.co/api/v2/pokemon/xyz",
+           "timestamp": "2025-06-04 13:15:30",
+           "status": "Error: Received status code 404"
+         }
+       ]
+       ```
 
 ## Project Structure
 - `api_fetcher.py`: The original command-line script that fetches data from the Pokémon API (Day 2).
-- `server.py`: The backend server with the `/fetch-api` route to fetch data from any public URL (Day 3) and serves the frontend UI (Day 4).
-- `index.html`: The frontend UI for inputting API URLs and displaying responses (Day 4).
+- `server.py`: The backend server with the `/fetch-api` route (Day 3), serves the frontend UI (Day 4), and includes persistence with `/fetch-history` (Day 5).
+- `index.html`: The frontend UI for inputting API URLs, displaying responses (Day 4), and showing fetch history (Day 5).
 - `requirements.txt`: A list of required Python libraries (`requests`, `flask`).
+- `fetch_history.json`: A file storing the history of API fetches (Day 5).
 - `README.md`: This file, providing project details and instructions.
 
 ## Error Handling
-The `/fetch-api` route includes:
-- Backend errors: Missing URLs (`400`), invalid URLs (`500` with status code), network issues, JSON parsing errors (`500`).
+- The `/fetch-api` route handles:
+  - Backend errors: Missing URLs (`400`), invalid URLs (`500` with status code), network issues, JSON parsing errors (`500`).
+  - Logs all requests, including errors, with their status.
+- The `/fetch-history` route handles:
+  - Returns an empty list if no history exists.
 - Frontend errors: Displays validation errors (e.g., empty URL) and backend errors in the UI.
 
 ## Future Improvements
 - Generalize the backend response formatting to handle different API structures dynamically
-- Add a `/fetch-history` endpoint to support logging and retrieving fetch history
-- Enhance error messaging and UI styling
+- Use a database (e.g., SQLite) instead of a JSON file for better scalability
+- Add filtering and sorting options for the fetch history in the frontend
 
 ## Notes
 - The program was tested with various Pokémon API URLs (e.g., `https://pokeapi.co/api/v2/pokemon/pikachu`, `https://pokeapi.co/api/v2/pokemon/charizard`) and handles errors gracefully
 - Ensure you have an active internet connection
 - Stop the Flask server (Ctrl+C in the terminal) when done testing
+- The `fetch_history.json` file is created automatically the first time you fetch data
+
